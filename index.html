@@ -1,289 +1,179 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🏧 Smart ATM - Bank Account System</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>💎 Smart ATM</title>
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow-x: hidden;
-        }
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
 
-        .atm-container {
-            background: linear-gradient(145deg, #1a1a2e, #16213e);
-            border-radius: 25px;
-            padding: 30px;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
-            width: 450px;
-            max-width: 90vw;
-            border: 3px solid #00d4ff;
-            position: relative;
-            overflow: hidden;
-        }
+body{
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
 
-        .atm-container::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 5px;
-            background: linear-gradient(90deg, #00d4ff, #00ff88, #ffaa00, #ff6b6b);
-            background-size: 300% 100%;
-            animation: glow 2s linear infinite;
-        }
+/* ATM CARD */
+.atm{
+    width:380px;
+    padding:25px;
+    border-radius:20px;
+    background: linear-gradient(145deg,#1a1a2e,#16213e);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+    border:2px solid #00d4ff;
+    animation: fadeIn 1s ease;
+}
 
-        @keyframes glow {
-            0% { background-position: 0% 50%; }
-            100% { background-position: 300% 50%; }
-        }
+/* TITLE */
+h2{
+    text-align:center;
+    color:#00d4ff;
+    margin-bottom:20px;
+    text-shadow:0 0 10px #00d4ff;
+}
 
-        .screen {
-            background: #0a0a0a;
-            border-radius: 15px;
-            padding: 25px;
-            margin-bottom: 20px;
-            min-height: 200px;
-            position: relative;
-            border: 2px solid #333;
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
-        }
+/* INPUT */
+input{
+    width:100%;
+    padding:12px;
+    border-radius:10px;
+    border:2px solid #333;
+    background:#111;
+    color:white;
+    margin:10px 0;
+    transition:0.3s;
+}
+input:focus{
+    border-color:#00d4ff;
+    box-shadow:0 0 10px #00d4ff;
+}
 
-        .screen-header {
-            color: #00ff88;
-            font-size: 18px;
-            margin-bottom: 15px;
-            text-align: center;
-            font-weight: bold;
-        }
+/* BUTTON */
+button{
+    width:100%;
+    padding:12px;
+    margin:6px 0;
+    border:none;
+    border-radius:10px;
+    font-weight:bold;
+    cursor:pointer;
+    transition:0.3s;
+}
 
-        .balance-display {
-            font-size: 28px;
-            font-weight: bold;
-            color: #00d4ff;
-            text-align: center;
-            margin: 15px 0;
-            text-shadow: 0 0 10px #00d4ff;
-        }
+/* BUTTON COLORS */
+.deposit{background:#00ff88;}
+.withdraw{background:#ff6b6b;}
+.balance{background:#00d4ff;}
 
-        .message {
-            background: rgba(0,212,255,0.1);
-            padding: 12px;
-            border-radius: 8px;
-            border-left: 4px solid #00d4ff;
-            margin: 10px 0;
-            font-weight: 500;
-            animation: slideIn 0.3s ease-out;
-        }
+button:hover{
+    transform:translateY(-3px) scale(1.03);
+    box-shadow:0 10px 20px rgba(0,0,0,0.5);
+}
 
-        @keyframes slideIn {
-            from { transform: translateX(-20px); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
+/* SCREEN TEXT */
+#output{
+    margin-top:10px;
+    padding:10px;
+    border-radius:8px;
+    text-align:center;
+    font-weight:bold;
+    background:#000;
+    color:#00ff88;
+    min-height:30px;
+    animation: fadeIn 0.5s;
+}
 
-        .menu {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-
-        .btn {
-            background: linear-gradient(145deg, #667eea 0%, #764ba2 100%);
-            border: none;
-            padding: 15px 10px;
-            border-radius: 12px;
-            color: white;
-            font-size: 14px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(102,126,234,0.4);
-        }
-
-        .btn:active {
-            transform: translateY(0);
-        }
-
-        .btn-full {
-            grid-column: 1 / -1;
-        }
-
-        .input-group {
-            margin: 15px 0;
-        }
-
-        .input-group label {
-            display: block;
-            color: #00ff88;
-            margin-bottom: 8px;
-            font-weight: 500;
-        }
-
-        .input-field {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #333;
-            border-radius: 8px;
-            background: #1a1a2e;
-            color: #fff;
-            font-size: 16px;
-            transition: border-color 0.3s ease;
-        }
-
-        .input-field:focus {
-            outline: none;
-            border-color: #00d4ff;
-            box-shadow: 0 0 10px rgba(0,212,255,0.3);
-        }
-
-        .status {
-            text-align: center;
-            padding: 10px;
-            border-radius: 8px;
-            font-weight: bold;
-            margin: 10px 0;
-            min-height: 20px;
-        }
-
-        .success { background: rgba(0,255,136,0.2); color: #00ff88; border: 1px solid #00ff88; }
-        .error { background: rgba(255,107,107,0.2); color: #ff6b6b; border: 1px solid #ff6b6b; }
-        .info { background: rgba(0,212,255,0.2); color: #00d4ff; border: 1px solid #00d4ff; }
-
-        .atm-title {
-            text-align: center;
-            color: #fff;
-            font-size: 24px;
-            margin-bottom: 20px;
-            text-shadow: 0 0 20px #00d4ff;
-        }
-
-        .hidden {
-            display: none !important;
-        }
-
-        .keypad {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-top: 15px;
-        }
-
-        .keypad-btn {
-            background: linear-gradient(145deg, #2c3e50, #34495e);
-            border: none;
-            padding: 20px;
-            border-radius: 12px;
-            color: white;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .keypad-btn:hover {
-            background: linear-gradient(145deg, #3498db, #2980b9);
-            transform: scale(1.05);
-        }
-
-        .keypad-btn:active {
-            transform: scale(0.98);
-        }
-
-        .backspace {
-            background: linear-gradient(145deg, #e74c3c, #c0392b) !important;
-        }
-    </style>
+/* ANIMATION */
+@keyframes fadeIn{
+    from{opacity:0; transform:translateY(20px);}
+    to{opacity:1; transform:translateY(0);}
+}
+</style>
 </head>
+
 <body>
-    <div class="atm-container">
-        <h1 class="atm-title">🏧 Smart ATM</h1>
-        
-        <div class="screen">
-            <div class="screen-header">Welcome, shyam prajapat!</div>
-            <div class="balance-display" id="balanceDisplay">$0.0</div>
-            <div id="messageArea"></div>
-        </div>
 
-        <div id="mainMenu">
-            <div class="menu">
-                <button class="btn" onclick="showDeposit()">💰 Deposit</button>
-                <button class="btn" onclick="showWithdraw()">💸 Withdraw</button>
-                <button class="btn" onclick="showBalance()">💳 Balance</button>
-                <button class="btn" onclick="showPinChange()">🔐 Change PIN</button>
-                <button class="btn btn-full" onclick="showAdmin()">⚙️ Admin Access</button>
-                <button class="btn btn-full" onclick="exitATM()">🚪 Exit</button>
-            </div>
-        </div>
+<div class="atm">
+    <h2>🏧 Smart ATM</h2>
 
-        <!-- Deposit Form -->
-        <div id="depositForm" class="hidden">
-            <div class="input-group">
-                <label>Enter Amount to Deposit:</label>
-                <input type="number" class="input-field" id="depositAmount" placeholder="0.00" min="1">
-            </div>
-            <div class="menu">
-                <button class="btn" onclick="processDeposit()">✅ Deposit</button>
-                <button class="btn" onclick="showMainMenu()">🔙 Back</button>
-            </div>
-        </div>
+    <input type="number" id="amount" placeholder="💰 Enter Amount">
 
-        <!-- Withdraw Form -->
-        <div id="withdrawForm" class="hidden">
-            <div class="input-group">
-                <label>Enter Amount to Withdraw:</label>
-                <input type="number" class="input-field" id="withdrawAmount" placeholder="0.00" min="1">
-            </div>
-            <div class="menu">
-                <button class="btn" onclick="processWithdraw()">✅ Withdraw</button>
-                <button class="btn" onclick="showMainMenu()">🔙 Back</button>
-            </div>
-        </div>
+    <button class="deposit" onclick="deposit()">Deposit</button>
+    <button class="withdraw" onclick="withdraw()">Withdraw</button>
+    <button class="balance" onclick="checkBalance()">Check Balance</button>
 
-        <!-- PIN Change Form -->
-        <div id="pinChangeForm" class="hidden">
-            <div class="input-group">
-                <label>Old PIN:</label>
-                <input type="password" class="input-field" id="oldPin" placeholder="••••">
-            </div>
-            <div class="input-group">
-                <label>New PIN:</label>
-                <input type="password" class="input-field" id="newPin" placeholder="••••">
-            </div>
-            <div class="menu">
-                <button class="btn" onclick="processPinChange()">✅ Change PIN</button>
-                <button class="btn" onclick="showMainMenu()">🔙 Back</button>
-            </div>
-        </div>
+    <div id="output"></div>
+</div>
 
-        <!-- Admin Access -->
-        <div id="adminForm" class="hidden">
-            <div class="status info">🔒 ATM Internal Access</div>
-            <div class="balance-display" id="adminBalance">$1,000.00</div>
-            <button class="btn btn-full" onclick="showMainMenu()">🔙 Back</button>
-        </div>
+<script>
+const API = "http://127.0.0.1:5000";
 
-        <div id="statusArea" class="status hidden"></div>
-    </div>
+function show(msg, color="lightgreen"){
+    let out = document.getElementById("output");
+    out.innerText = msg;
+    out.style.color = color;
+}
+
+async function deposit(){
+    let amount = document.getElementById("amount").value;
+    let pin = prompt("Enter PIN:");
+
+    let res = await fetch(API+"/deposit",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({amount:Number(amount), pin:Number(pin)})
+    });
+
+    let data = await res.json();
+
+    if(data.status==="success"){
+        show("✅ Deposit Success | Balance: ₹"+data.balance);
+    }else{
+        show("❌ "+data.msg,"red");
+    }
+}
+
+async function withdraw(){
+    let amount = document.getElementById("amount").value;
+    let pin = prompt("Enter PIN:");
+
+    let res = await fetch(API+"/withdraw",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({amount:Number(amount), pin:Number(pin)})
+    });
+
+    let data = await res.json();
+
+    if(data.status==="success"){
+        show("💸 Withdraw Success | Balance: ₹"+data.balance);
+    }else{
+        show("❌ "+data.msg,"red");
+    }
+}
+
+async function checkBalance(){
+    let pin = prompt("Enter PIN:");
+
+    let res = await fetch(API+"/balance",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({pin:Number(pin)})
+    });
+
+    let data = await res.json();
+
+    if(data.status==="success"){
+        show("💳 Balance: ₹"+data.balance);
+    }else{
+        show("❌ "+data.msg,"red");
+    }
+}
+</script>
+
 </body>
 </html>

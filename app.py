@@ -1,104 +1,66 @@
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+
+app = Flask(__name__)
+CORS(app)
+
 class BankAccount:
     def __init__(self, name, pin, balance=0):
         self.name = name
         self.__pin = pin
         self.__balance = balance
 
-    # Verify PIN
     def verify_pin(self, pin):
         return self.__pin == pin
 
-    # Deposit money
     def deposit(self, amount, pin):
         if not self.verify_pin(pin):
-            print("❌ Wrong PIN")
-            return
+            return {"status": "error", "msg": "Wrong PIN"}
 
         if amount > 0:
             self.__balance += amount
-            print("✅ Amount Deposited:", amount)
-        else:
-            print("❌ Invalid Amount")
+            return {"status": "success", "balance": self.__balance}
 
-    # Withdraw money
+        return {"status": "error", "msg": "Invalid amount"}
+
     def withdraw(self, amount, pin):
         if not self.verify_pin(pin):
-            print("❌ Wrong PIN")
-            return
+            return {"status": "error", "msg": "Wrong PIN"}
 
         if amount <= self.__balance:
             self.__balance -= amount
-            print("✅ Withdrawn:", amount)
-        else:
-            print("❌ Insufficient Balance")
+            return {"status": "success", "balance": self.__balance}
 
-    # Get balance
+        return {"status": "error", "msg": "Insufficient balance"}
+
     def get_balance(self, pin):
         if not self.verify_pin(pin):
-            print("❌ Wrong PIN")
-            return
-        return self.__balance
+            return {"status": "error", "msg": "Wrong PIN"}
+
+        return {"status": "success", "balance": self.__balance}
 
 
-# Child class (ATM Machine)
-class ATM(BankAccount):
+user = BankAccount("Shyam", 1234, 1000)
 
-    def access_balance(self, pin):
-        if not self.verify_pin(pin):
-            print("❌ Wrong PIN")
-            return
-        print("💰 Balance (ATM Access):", self._BankAccount__balance)
+@app.route("/")
+def home():
+    return "ATM Backend Running ✅"
 
-    def change_pin(self, old_pin, new_pin):
-        if self._BankAccount__pin == old_pin:
-            self._BankAccount__pin = new_pin
-            print("✅ PIN Changed Successfully")
-        else:
-            print("❌ Wrong Old PIN")
+@app.route("/deposit", methods=["POST"])
+def deposit():
+    data = request.json
+    return jsonify(user.deposit(data["amount"], data["pin"]))
+
+@app.route("/withdraw", methods=["POST"])
+def withdraw():
+    data = request.json
+    return jsonify(user.withdraw(data["amount"], data["pin"]))
+
+@app.route("/balance", methods=["POST"])
+def balance():
+    data = request.json
+    return jsonify(user.get_balance(data["pin"]))
 
 
-# ----------- Main Program -----------
-user = ATM("SHYAM PRAJAPAT", 1234, 1000)
-
-while True:
-    print("\n====== 🏧 ATM MENU ======")
-    print("1. Deposit")
-    print("2. Withdraw")
-    print("3. Check Balance")
-    print("4. ATM Internal Balance")
-    print("5. Change PIN")
-    print("6. Exit")
-
-    choice = int(input("Enter your choice: "))
-
-    if choice == 1:
-        pin = int(input("Enter PIN: "))
-        amt = int(input("Enter amount to deposit: "))
-        user.deposit(amt, pin)
-
-    elif choice == 2:
-        pin = int(input("Enter PIN: "))
-        amt = int(input("Enter amount to withdraw: "))
-        user.withdraw(amt, pin)
-
-    elif choice == 3:
-        pin = int(input("Enter PIN: "))
-        bal = user.get_balance(pin)
-        if bal is not None:
-            print("💰 Balance:", bal)
-
-    elif choice == 4:
-        pin = int(input("Enter PIN: "))
-        user.access_balance(pin)
-
-    elif choice == 5:
-        old = int(input("Enter old PIN: "))
-        new = int(input("Enter new PIN: "))
-        user.change_pin(old, new)
-
-    elif choice == 6:
-        print("👋 Thank you for using ATM")
-        break
-
-    else:
-        print("❌ Invalid Choice")
+if __name__ == "__main__":
+    app.run(debug=True)
